@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 p-4">
+    <div class="max-w-lg mx-auto bg-white p-8 rounded shadow-md" id="testForm">
+        <h1 class="text-2xl font-bold mb-4">Add Test Part</h1>
+
+        <div id="testDetails" class="mb-4">
+            <input type="text" id="testName" name="testName" class="border border-gray-300 rounded px-2 py-1 w-full mb-2" placeholder="Test Name">
+            <textarea id="testDescription" name="testDescription" rows="3" class="border border-gray-300 rounded px-2 py-1 w-full resize-none" placeholder="Test Description"></textarea>
+        </div>
+
+        <div id="testCasesContainer">
+            <!-- Test Cases will be dynamically added here -->
+        </div>
+
+        <button onclick="add_test_case()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Add Test Case</button>
+    </div>
+
+    <button onclick="confirmData()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 mx-auto block">Confirm</button>
+
+    <script>
+        let testCaseCount = 0;
+
+        function add_test_case() {
+            testCaseCount++;
+
+            const testCaseHtml = `
+            <div class="border-t border-gray-200 pt-4 mt-4" id="testCase${testCaseCount}">
+                <h2 class="text-lg font-semibold mb-2">Test Case ${testCaseCount}</h2>
+                <div class="mb-4">
+                    <label for="testName${testCaseCount}" class="font-semibold block">Output:</label>
+                    <input type="text" id="testName${testCaseCount}" name="testName${testCaseCount}" class="border border-gray-300 rounded px-2 py-1 w-full">
+                    </div>
+                    
+                    <div id="variablesContainer${testCaseCount}">
+                        <!-- Variables for this test part will be dynamically added here -->
+                    </div>
+                    <button onclick="add_variables(${testCaseCount})" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-2">Add Variable</button>
+                </div>
+            `;
+            document.getElementById('testCasesContainer').insertAdjacentHTML('beforeend', testCaseHtml);
+        }
+
+        function add_variables(testCaseNum) {
+            const variableCount = document.querySelectorAll(`#variablesContainer${testCaseNum} input[type="text"]`).length + 1;
+            const variableHtml = `
+                <div class="mt-2">
+                    <label for="variable${testCaseNum}_${variableCount}" class="font-semibold block">Variable ${variableCount}:</label>
+                    <input type="text" id="variable${testCaseNum}_${variableCount}" name="variable${testCaseNum}_${variableCount}" class="border border-gray-300 rounded px-2 py-1 w-full">
+                </div>
+            `;
+            document.getElementById(`variablesContainer${testCaseNum}`).insertAdjacentHTML('beforeend', variableHtml);
+        }
+
+        function confirmData() {
+            const testPartName = document.getElementById('testName').value;
+            const testPartDescription = document.getElementById('testDescription').value;
+
+            const testPart = {
+                "name": testPartName,
+                "description": testPartDescription
+            };
+
+            const testCases = [];
+
+            const testCasesElements = document.querySelectorAll('[id^=testCase]');
+            testCasesElements.forEach(testCaseElement => {
+                const output = testCaseElement.querySelector('input[type="text"]').value;
+
+                const variables = [];
+                const variableElements = testCaseElement.querySelectorAll('[id^=variable]');
+                variableElements.forEach(variableElement => {
+                    // const varName = variableElement.getAttribute('name');
+                    const varInput = variableElement.value;
+                    if(varInput == undefined) return
+                    const variable = {
+                        // "var": varName,
+                        "input": varInput
+                    };
+                    variables.push(variable);
+                    console.log(variable)
+                });
+                console.log({})
+
+                const testCase = {
+                    "output": output,
+                    "variables": variables
+                };
+
+                testCases.push(testCase);
+            });
+
+            const testData = {
+                "test_part": testPart,
+                "test_cases": testCases
+            };
+
+            console.log(testData);
+
+            // Now you can send the data as JSON to your endpoint
+            // fetch('url_to_your_endpoint', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(testData),
+            // })
+            // .then(response => {
+            //     if (response.ok) {
+            //         // Handle successful response
+            //     } else {
+            //         // Handle errors
+            //     }
+            // })
+            // .catch(error => {
+            //     // Handle errors
+            // });
+        }
+    </script>
+</body>
+
+</html>
